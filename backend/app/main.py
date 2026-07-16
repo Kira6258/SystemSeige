@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from app.api.routes import auth, chat, loans, profile
+from app.api.routes import auth, chat, loans, profile, goals, expenses, investments
 from app.core.config import settings
 from app.core.middleware import SecurityHeadersMiddleware
 from app.core.rate_limit import limiter
@@ -48,7 +48,7 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     # 400 with clear-but-generic messages; never echoes raw internals.
-    return JSONResponse(status_code=400, content={"error": "Invalid request", "details": exc.errors()})
+    return JSONResponse(status_code=400, content={"error": "Invalid request"})
 
 
 @app.exception_handler(HTTPException)
@@ -67,6 +67,12 @@ app.include_router(auth.router)
 app.include_router(profile.router)
 app.include_router(loans.router)
 app.include_router(chat.router)
+from app.api.routes import dashboard, loan_finder
+app.include_router(dashboard.router)
+app.include_router(loan_finder.router)
+app.include_router(goals.router)
+app.include_router(expenses.router)
+app.include_router(investments.router)
 
 
 @app.get("/api/health")

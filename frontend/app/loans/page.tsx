@@ -42,7 +42,6 @@ export default function LoansPage() {
 
   return (
     <>
-      <Nav />
       <div className="container">
         <h1>Predatory Loan Scanner</h1>
 

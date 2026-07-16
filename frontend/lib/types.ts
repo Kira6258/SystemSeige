@@ -20,6 +20,8 @@ export interface LoanAnalysis {
     emi_deviation_pct: number;
     fee_flags: FeeFlag[];
     compliance_flags: ComplianceFlag[];
+    apr?: number;
+    predatory_signals?: string[];
   };
   explanation: string;
   reproducible: boolean;
@@ -36,7 +38,11 @@ export interface LoanListItem {
 export interface Advisor {
   role: string;
   advice: string;
+  evidence: string[];
+  reasoning: string;
   confidence: number;
+  risk_level: string;
+  formula_used: string | null;
 }
 
 export interface BoardChatResponse {

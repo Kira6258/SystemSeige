@@ -103,7 +103,16 @@ async def refresh(request: Request, response: Response, db: AsyncSession = Depen
     except pyjwt.PyJWTError:
         raise unauthorized
 
-    result = await db.execute(select(User).where(User.id == payload.get("sub")))
+    import uuid
+    user_id_str = payload.get("sub")
+    if not user_id_str:
+        raise unauthorized
+    try:
+        user_id = uuid.UUID(user_id_str)
+    except ValueError:
+        raise unauthorized
+
+    result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
         raise unauthorized

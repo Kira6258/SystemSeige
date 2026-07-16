@@ -20,8 +20,14 @@ async def get_current_user(
     except jwt.PyJWTError:
         raise unauthorized
 
-    user_id = payload.get("sub")
-    if not user_id:
+    import uuid
+    user_id_str = payload.get("sub")
+    if not user_id_str:
+        raise unauthorized
+
+    try:
+        user_id = uuid.UUID(user_id_str)
+    except ValueError:
         raise unauthorized
 
     result = await db.execute(select(User).where(User.id == user_id))
