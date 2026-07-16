@@ -54,6 +54,39 @@ class Api {
   post<T>(endpoint: string, body: any) { return this.request<T>(endpoint, { method: "POST", body: JSON.stringify(body) }); }
   put<T>(endpoint: string, body: any) { return this.request<T>(endpoint, { method: "PUT", body: JSON.stringify(body) }); }
   delete<T>(endpoint: string) { return this.request<T>(endpoint, { method: "DELETE" }); }
+
+  async upload<T>(endpoint: string, file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const url = `${baseUrl}${endpoint}`;
+
+    // We can't use Content-Type application/json for FormData, we let the browser set it
+    // with the correct multipart boundary.
+    let response = await fetch(url, {
+      method: "POST",
+      body: formData,
+      credentials: "include", // send cookies
+    });
+
+    if (response.status === 401) {
+      const refreshed = await fetch(`${baseUrl}/api/auth/refresh`, { method: "POST", credentials: "include" });
+      if (refreshed.ok) {
+        response = await fetch(url, { method: "POST", body: formData, credentials: "include" });
+      }
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new ApiError(
+        response.status,
+        errorData?.error || errorData?.detail || `API Error: ${response.statusText}`
+      );
+    }
+
+    return response.json() as Promise<T>;
+  }
 }
 
 export const api = new Api();
