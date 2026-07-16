@@ -15,7 +15,8 @@ class Api {
   }
 
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `http://localhost:8000${endpoint}`;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const url = `${baseUrl}${endpoint}`;
     const headers = this.getHeaders();
     
     const response = await fetch(url, {
