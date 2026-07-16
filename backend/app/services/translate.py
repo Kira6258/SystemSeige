@@ -8,6 +8,18 @@ logger = logging.getLogger("clearfinance")
 def detect_language(text: str, fallback: str = "en") -> str:
     if not text or not text.strip():
         return fallback
+        
+    # Heuristic for short English phrases that langdetect often misclassifies
+    cleaned = text.lower().strip()
+    common_english_words = {
+        "hello", "hi", "hey", "how", "what", "where", "why", "who", "when", "is", "are", "am", 
+        "you", "i", "my", "car", "debt", "loan", "bank", "buy", "save", "income", "expense",
+        "budget", "tax", "insurance", "investment", "return", "stocks", "goal", "goals", "money"
+    }
+    words = set(cleaned.split())
+    if words.intersection(common_english_words) and cleaned.isascii():
+        return "en"
+        
     try:
         return detect(text)
     except LangDetectException:
